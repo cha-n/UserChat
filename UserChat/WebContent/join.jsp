@@ -10,6 +10,35 @@
 	<title>JSP Ajax 실시간 회원제 채팅 서비스</title>
 	<script src="http://code.jquery.com/jquery-3.1.1.min.js"></script>
 	<script src="js/bootstrap.js"></script>
+	<script type="text/javascript">
+		function registerCheckFunction() {
+			var userID = $('#userID').val();
+			$.ajax({
+				type: 'POST',
+				url: './UserRegisterCheckServlet',
+				data: {userID: userID},
+				success: function(result) {
+					if(result==1) {
+						$('#checkMessage').html('사용할 수 있는 아이디입니다.');
+						$('#checkType').attr('class', 'modal-content panel-success');
+					} else{
+						$('#checkMessage').html('사용할 수 없는 아이디입니다.');
+						$('#checkType').attr('class', 'modal-content panel-warning');
+					}
+					$('#checkModal').modal("show");
+				}
+			});
+		}
+		function passwordCheckFunction() {
+			var userPassword1 = $('#userPassword1').val();
+			var userPassword2 = $('#userPassword2').val();
+			if (userPassword1 != userPassword2) {
+				$('#passwordCheckMessage').html('비밀번호가 서로 일치하지 않습니다.');
+			} else{
+				$('#passwordCheckMessage').html('');
+			}
+		}
+	</script>
 </head>
 <body>
 	<%
@@ -83,7 +112,7 @@
 					</tr>
 					<tr>
 						<td style="width: 110px;"><h5>비밀번호 확인</h5></td>
-						<td colspan="2"><input onkeyup="passwordCheckFunction();" class="form-control" id="userPassword2" type="password" name="userPassword1" maxlength="20" placeholder="비밀번호 확인을 입력하세요."></td>
+						<td colspan="2"><input onkeyup="passwordCheckFunction();" class="form-control" id="userPassword2" type="password" name="userPassword2" maxlength="20" placeholder="비밀번호 확인을 입력하세요."></td>
 					</tr>
 					<tr>
 						<td style="width: 110px;"><h5>이름</h5></td>
@@ -111,10 +140,83 @@
 					<tr>
 						<td style="width: 110px;"><h5>이메일</h5></td>
 						<td colspan="2"><input class="form-control" id="userEmail" type="email" name="userEmail" maxlength="20" placeholder="이메일을 입력하세요."></td>
-					</tr>		
+					</tr>	
+					<tr>
+						<!-- passwordCheckFunction()에서 설정한 '#passwordCheckMessage' -->
+						<td style="text-align: left;" colspan="3"><h5 style="color: red;" id="passwordCheckMessage"></h5><input class="btn btn-primary pull-right" type="submit" value="등록"></td>
+					</tr>	
 				</tbody>
 			</table>
 		</form>
+	</div>
+	<%
+		String messageContent = null;
+		if (session.getAttribute("messageContent") != null) {
+			messageContent = (String) session.getAttribute("messageContent");
+		}
+		String messageType = null;
+		if (session.getAttribute("messageType") != null) {
+			messageType = (String) session.getAttribute("messageType");
+		}
+		if (messageContent != null) {
+	%>
+	<div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="vertical-alignment-helper">
+			<div class="modal-dialog vertical-align-center">
+				<div class="modal-content <% if(messageType.equals("오류 메시지")) out.println("panel-warning"); else out.println("panel-success"); %>">
+					<div class="modal-header panel-heading">
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">&times</span>
+							<span class="sr-only">Close</span>
+						</button>
+						<h4 class="modal-title">
+							<%= messageType %>
+						</h4>
+					</div>	
+					<div class="modal-body">
+						<%= messageContent %>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" data-dismiss="modal">확인</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 모달 창이 사용자에게 보여질 수 있게 함 -->
+	<script>
+		$('#messageModal').modal("show");	
+	</script>
+	<% 	
+		//모달 창을 띄운 후 세션 파기
+		session.removeAttribute("messageContent");
+		session.removeAttribute("messageType");
+		}
+	%>
+	<!-- 확인을 출력하는 모달 창 -->
+	<!-- 중복 체크 할 때마다 실제 사용자에게 띄워짐 -->
+	<div class="modal fade" id="checkModal" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="vertical-alignment-helper">
+			<div class="modal-dialog vertical-align-center">
+				<!-- 정보를 띄워주는 모달 창 -->
+				<div id="checkType" class="modal-content panel-info">
+					<div class="modal-header panel-heading">
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">&times</span>
+							<span class="sr-only">Close</span>
+						</button>
+						<h4 class="modal-title">
+							확인 메시지
+						</h4>
+					</div>	
+					<div id="checkMessage" class="modal-body">
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" data-dismiss="modal">확인</button>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 </body>
 </html>

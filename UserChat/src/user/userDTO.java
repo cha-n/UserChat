@@ -1,6 +1,6 @@
-/*package user;
+package user;
 
-public class userDTO {
+public class UserDTO {
 	
 	String userID;
 	String userPassword;
@@ -55,4 +55,3 @@ public class userDTO {
 	
 	
 }
-*/
