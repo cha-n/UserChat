@@ -1,3 +1,5 @@
 INDEX VERSION 1.131
+C:\myJSP\userChat\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\3848304228.index
+\UserChat\src
 C:\myJSP\userChat\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\68668896.index
 \UserChat\src

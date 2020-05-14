@@ -1,5 +1,4 @@
 INDEX VERSION 1.131+C:\myJSP\userChat\.metadata\.plugins\org.eclipse.jdt.core
 2353089477.index
-2024334712.index
 628062595.index
 2380873238.index

@@ -44,6 +44,7 @@ public class UserRegisterServlet extends HttpServlet {
 		}
 		int result = new UserDAO().register(userID, userPassword1, userName, userAge, userGender, userEmail, userProfile);
 		if (result == 1) {
+			request.getSession().setAttribute("userID", userID); 	//자동으로 로그인 되도록 만듦
 			request.getSession().setAttribute("messageType", "성공 메시지");
 			request.getSession().setAttribute("messageContent", "회원가입에 성공했습니다.");
 			response.sendRedirect("index.jsp");
