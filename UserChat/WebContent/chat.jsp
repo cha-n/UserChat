@@ -42,8 +42,8 @@
 			window.setTimeout(function() { alert.hide() }, delay);
 		}
 		function submitFunction() {
-			var fromID = '<%= userID %>'
-			var toID = '<%= toID %>'
+			var fromID = '<%= userID %>';
+			var toID = '<%= toID %>';
 			var chatContent = $('#chatContent').val();
 			$.ajax({
 				type: "POST",
@@ -64,6 +64,61 @@
 				}
 			});
 			$('#chatContent').val('');		
+		}
+		var lastID = 0;
+		function chatListFunction(type){
+			var fromID = '<%= userID %>';
+			var toID = '<%= toID %>';
+			$.ajax({
+				type: "POST",
+				url: "./chatListServlet",
+				data: {
+					fromID: encodeURIComponent(fromID),
+					toID: encodeURIComponent(toID),
+					listType: type
+				},
+				success: function(data) {
+					//데이터 없으면 함수 종료
+					if(data == "") return;
+					var parsed = JSON.parse(data);
+					var result = parsed.result;
+					for(var i = 0; i < result.length; i++) {
+						//addChat: 화면에 출력할 수 있게 만듦
+						addChat(result[i][0].value, result[i][2].value, result[i][3].value);
+					}
+					lastID = Number(parsed.last);	// 가장 마지막으로 전달받은 chatID
+				}
+			});
+		}
+		function addChat(chatName, chatContent, chatTime) {
+			$('#chatList').append('<div class="row">' +
+					'<div class = "col-lg-12">' +
+					'<div class = "media">' +
+					'<a class="pull-left" href="#">' +
+					'<img class="media-object img-circle" style="width: 30px; height: 30px;" src="images/puppy.PNG" alt="">' +
+					'</a>' +
+					'<div class="media-body">' +
+					'<h4 class="media-heading">' +
+					chatName +
+					'<span class="small pull-right">' +
+					chatTime +
+					'</span>' +
+					'</h4>' +
+					'<p>' +
+					chatContent +
+					'</p>' +
+					'</div>'+
+					'</div>'+
+					'</div>'+
+					'</div>'+
+					'<hr>');
+			$('#chatList').scrollTop($('#chatList')[0].scrollHeight);
+		} 
+		function getInfiniteChat() {
+			//3초마다 반복적으로 수행 -> 새로운 메세지 가져옴
+			setInterval(function() {
+				chatListFunction(lastID);
+			},3000)
 		}
 	</script>
 </head>
@@ -114,7 +169,7 @@
 						<div class="clearfix"></div>
 					</div>
 					<div id="chat" class="panel-collapse collapse in">
-						<div id="chatList" class="porlet-body chat-widget" style="overflow-y: auto; width: auto; height: 600px;">
+						<div id="chatList" class="portlet-body chat-widget" style="overflow-y: auto; width: auto; height: 600px;">
 						</div>
 						<div class="portlet-footer">
 							<div class="row" style="height: 90px;">
@@ -141,9 +196,6 @@
 	<div class="alert alert-warning" id="warningMessage" style="display: none;">
 		<strong>데이터베이스 오류가 발생했습니다..</strong>
 	</div>
-	
-	
-	
 	
 	<%
 		String messageContent = null;
@@ -181,7 +233,7 @@
 	</div>
 	<!-- 모달 창이 사용자에게 보여질 수 있게 함 -->
 	<script>
-		$('#messageModal').modal("show");	
+		$('#messageModal').modal("show");
 	</script>
 	<% 	
 		//모달 창을 띄운 후 세션 파기
@@ -189,6 +241,12 @@
 		session.removeAttribute("messageType");
 		}
 	%>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			chatListFunction('ten');
+			getInfiniteChat();
+		});
+	</script>
 </body>
 </html>
 
