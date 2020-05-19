@@ -69,6 +69,7 @@
 		function chatListFunction(type){
 			var fromID = '<%= userID %>';
 			var toID = '<%= toID %>';
+			console.log("fromID : "+fromID+" toID : "+toID + " type : "+type);
 			$.ajax({
 				type: "POST",
 				url: "./chatListServlet",
@@ -83,6 +84,9 @@
 					var parsed = JSON.parse(data);
 					var result = parsed.result;
 					for(var i = 0; i < result.length; i++) {
+						if(result[i][0].value == fromID) {
+							result[i][0].value = "나";		// 내가 보낸 메세지
+						}
 						//addChat: 화면에 출력할 수 있게 만듦
 						addChat(result[i][0].value, result[i][2].value, result[i][3].value);
 					}
@@ -95,7 +99,7 @@
 					'<div class = "col-lg-12">' +
 					'<div class = "media">' +
 					'<a class="pull-left" href="#">' +
-					'<img class="media-object img-circle" style="width: 30px; height: 30px;" src="images/puppy.PNG" alt="">' +
+					'<img class="media-object img-circle" style="width: 40px; height: 40px;" src="/images/puppy.PNG" alt="">' +
 					'</a>' +
 					'<div class="media-body">' +
 					'<h4 class="media-heading">' +
@@ -120,6 +124,30 @@
 				chatListFunction(lastID);
 			},3000)
 		}
+		function getUnread() {
+			$.ajax({
+				type: "POST",
+				url: "./chatUnread",
+				data: {
+					userID: encodeURIComponent('<%= userID %>'),
+				},
+				success: function(result) {
+					if(result >= 1) {
+						showUnread(result);
+					}else{
+						showUnread('');
+					}
+				}
+			});
+		}
+		function getInfiniteUnread() {
+			setInterval(function() {
+				getUnread();
+			},4000);
+		}
+		function showUnread(result) {
+			$('#unread').html(result);
+		}
 	</script>
 </head>
 <body>
@@ -135,7 +163,9 @@
 		</div>
 		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 			<ul class="nav navbar-nav">
-				<li class="active"><a href="index.jsp">메인</a>
+				<li><a href="index.jsp">메인</a>
+				<li><a href="find.jsp">친구찾기</a>
+				<li><a href="box.jsp">메시지함<span id="unread" class="label label-info"></span></a>
 			</ul>
 			<%
 				if(userID != null) {
@@ -243,8 +273,10 @@
 	%>
 	<script type="text/javascript">
 		$(document).ready(function() {
-			chatListFunction('ten');
+			getUnread();
+			chatListFunction('0');
 			getInfiniteChat();
+			getInfiniteUnread();
 		});
 	</script>
 </body>

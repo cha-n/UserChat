@@ -2,6 +2,12 @@
 	pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
+	<%
+		String userID = null;
+		if (session.getAttribute("userID") != null) {
+			userID = (String)session.getAttribute("userID");
+		}
+	%>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,14 +16,35 @@
 	<title>JSP Ajax 실시간 회원제 채팅 서비스</title>
 	<script src="http://code.jquery.com/jquery-3.1.1.min.js"></script>
 	<script src="js/bootstrap.js"></script>
+	<script type="text/javascript">
+		function getUnread() {
+			$.ajax({
+				type: "POST",
+				url: "./chatUnread",
+				data: {
+					userID: encodeURIComponent('<%= userID %>'),
+				},
+				success: function(result) {
+					if(result >= 1) {
+						showUnread(result);
+					}else{
+						showUnread('');
+					}
+				}
+			});
+		}
+		function getInfiniteUnread() {
+			setInterval(function() {
+				getUnread();
+			},4000);
+		}
+		function showUnread(result) {
+			$('#unread').html(result);
+		}
+	</script>
 </head>
 <body>
-	<%
-		String userID = null;
-		if (session.getAttribute("userID") != null) {
-			userID = (String)session.getAttribute("userID");
-		}
-	%>
+	
 	<nav class="navbar navbar-default">
 		<div class="navbar-header">
 			<button type="button" class="navbar-toggle collapsed"
@@ -31,6 +58,8 @@
 		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 			<ul class="nav navbar-nav">
 				<li class="active"><a href="index.jsp">메인</a>
+				<li><a href="find.jsp">친구찾기</a>
+				<li><a href="box.jsp">메시지함<span id="unread" class="label label-info"></span></a>
 			</ul>
 			<%
 				if(userID==null) {
@@ -111,7 +140,7 @@
 	<div class="alert alert-warning" id="warningMessage" style="display: none;">
 		<strong>데이터베이스 오류가 발생했습니다..</strong>
 	</div>
-	
+	--%>
 	
 	
 	
@@ -153,12 +182,25 @@
 	<script>
 		$('#messageModal').modal("show");	
 	</script>
+	
 	<% 	
 		//모달 창을 띄운 후 세션 파기
 		session.removeAttribute("messageContent");
 		session.removeAttribute("messageType");
 		}
-	%> --%>
+	%> 
+	<%
+		if(userID != null) {
+	%>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			getUnread();
+			getInfiniteUnread();
+		})
+	</script>
+	<%
+		}
+	%>
 </body>
 </html>
 
