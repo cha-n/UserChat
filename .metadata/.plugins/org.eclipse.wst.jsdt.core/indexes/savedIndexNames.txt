@@ -3,7 +3,6 @@ INDEX VERSION 1.4+C:\myJSP\userChat\.metadata\.plugins\org.eclipse.wst.jsdt.core
 1658858780.index
 1666398326.index
 68668896.index
-68668896.index
 2380873238.index
 565855817.index
 1868493570.index
